@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Dataset Preview</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>HR Analytics</h2>
+
+<a href="/dashboard">🏠 Dashboard</a>
+
+<a href="/upload">📂 Upload Dataset</a>
+
+<a href="/analytics">📊 Analytics</a>
+
+<a href="/candidate">👨‍💼 Candidate Approval</a>
+
+<a href="/logout">🚪 Logout</a>
+
+</div>
+
+<div class="main">
+
+<h1>Dataset Preview</h1>
+
+<div class="card">
+
+<h3>Uploaded File</h3>
+
+<p><b>{{ filename }}</b></p>
+
+<p><b>Total Rows :</b> {{ rows }}</p>
+
+<p><b>Total Columns :</b> {{ columns }}</p>
+
+<p><b>Total Employees :</b> {{ total_employees }}</p>
+
+<p><b>Average Age :</b> {{ average_age }}</p>
+
+<p><b>Departments :</b> {{ departments }}</p>
+
+<p><b>Employees Left Company :</b> {{ attrition }}</p>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>Column Names</h2>
+
+<ul>
+
+{% for column in column_names %}
+
+<li>{{ column }}</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>First 10 Records</h2>
+
+{{ table|safe }}
+
+</div>
+
+<br>
+
+{% if department_chart %}
+
+<div class="card">
+
+<h2>Department Distribution</h2>
+
+{{ department_chart|safe }}
+
+</div>
+
+{% endif %}
+
+<br>
+
+{% if attrition_chart %}
+
+<div class="card">
+
+<h2>Employee Attrition</h2>
+
+{{ attrition_chart|safe }}
+
+</div>
+
+{% endif %}
+
+<br><br>
+
+<a href="/analytics">
+
+<button>
+
+Go To Analytics →
+
+</button>
+
+</a>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>HR Analytics Dashboard</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>HR Analytics</h2>
+
+<a href="/dashboard">🏠 Dashboard</a>
+
+<a href="/upload">📂 Upload Dataset</a>
+
+<a href="/analytics">📊 Analytics</a>
+
+<a href="/candidate">👨‍💼 Candidate Approval</a>
+
+<a href="/logout">🚪 Logout</a>
+
+</div>
+
+
+<div class="main">
+
+<h1>HR Analytics Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+
+<h3>Total Employees</h3>
+
+<h1>{{ total }}</h1>
+
+</div>
+
+<div class="card">
+
+<h3>Average Age</h3>
+
+<h1>{{ avg_age }}</h1>
+
+</div>
+
+<div class="card">
+
+<h3>Average Income</h3>
+
+<h1>{{ avg_income }}</h1>
+
+</div>
+
+<div class="card">
+
+<h3>Male Employees</h3>
+
+<h1>{{ male }}</h1>
+
+</div>
+
+<div class="card">
+
+<h3>Female Employees</h3>
+
+<h1>{{ female }}</h1>
+
+</div>
+
+<div class="card">
+
+<h3>Employees Working Overtime</h3>
+
+<h1>{{ overtime }}</h1>
+
+</div>
+
+</div>
+
+<br>
+
+{% if department_chart %}
+
+<div class="card">
+
+<h2>Department Distribution</h2>
+
+{{ department_chart|safe }}
+
+</div>
+
+{% endif %}
+
+<br>
+
+{% if gender_chart %}
+
+<div class="card">
+
+<h2>Gender Distribution</h2>
+
+{{ gender_chart|safe }}
+
+</div>
+
+{% endif %}
+
+<br>
+
+{% if income_chart %}
+
+<div class="card">
+
+<h2>Monthly Income Distribution</h2>
+
+{{ income_chart|safe }}
+
+</div>
+
+{% endif %}
+
+<br><br>
+
+<div style="text-align:center;">
+
+<a href="/candidate">
+
+<button>
+
+👨‍💼 Open Candidate Approval
+
+</button>
+
+</a>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

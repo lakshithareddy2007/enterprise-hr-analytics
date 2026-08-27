@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic OLAP Cube</title>
+
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0b132b;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .control {
+            background: #172554;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        select {
+            padding: 8px;
+            margin-left: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        #cube {
+            width: 100%;
+            height: 650px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Dynamic 3D OLAP Cube</h1>
+
+<div class="controls">
+
+    <div class="control">
+        X Axis:
+        <select id="xColumn"></select>
+    </div>
+
+    <div class="control">
+        Y Axis:
+        <select id="yColumn"></select>
+    </div>
+
+    <div class="control">
+        Z Axis:
+        <select id="zColumn"></select>
+    </div>
+
+    <div class="control">
+        Measure:
+        <select id="measureColumn"></select>
+    </div>
+
+    <div class="control">
+        Colour:
+        <select id="colorScale">
+
+            <option value="Turbo">Turbo</option>
+            <option value="Viridis">Viridis</option>
+            <option value="Plasma">Plasma</option>
+            <option value="Cividis">Cividis</option>
+            <option value="Rainbow">Rainbow</option>
+            <option value="Electric">Electric</option>
+            <option value="Hot">Hot</option>
+            <option value="Earth">Earth</option>
+
+        </select>
+    </div>
+
+    <button onclick="generateCube()">
+        Generate Cube
+    </button>
+
+</div>
+
+<div id="cube"></div>
+
+<script>
+
+const data = {{ data | tojson }};
+
+const columns = Object.keys(data[0] || {});
+
+const xColumn = document.getElementById("xColumn");
+const yColumn = document.getElementById("yColumn");
+const zColumn = document.getElementById("zColumn");
+const measureColumn = document.getElementById("measureColumn");
+
+
+columns.forEach(column => {
+
+    xColumn.innerHTML +=
+        `<option value="${column}">${column}</option>`;
+
+    yColumn.innerHTML +=
+        `<option value="${column}">${column}</option>`;
+
+    zColumn.innerHTML +=
+        `<option value="${column}">${column}</option>`;
+
+    measureColumn.innerHTML +=
+        `<option value="${column}">${column}</option>`;
+});
+
+
+/* Default HR parameters */
+
+if (columns.includes("Department"))
+    xColumn.value = "Department";
+
+if (columns.includes("JobRole"))
+    yColumn.value = "JobRole";
+
+if (columns.includes("Gender"))
+    zColumn.value = "Gender";
+
+if (columns.includes("MonthlyIncome"))
+    measureColumn.value = "MonthlyIncome";
+
+
+function generateCube() {
+
+    const x = xColumn.value;
+    const y = yColumn.value;
+    const z = zColumn.value;
+    const measure = measureColumn.value;
+
+    const color = document.getElementById("colorScale").value;
+
+
+    const xValues = data.map(row => row[x]);
+    const yValues = data.map(row => row[y]);
+    const zValues = data.map(row => row[z]);
+
+    const measureValues = data.map(row =>
+        Number(row[measure]) || 0
+    );
+
+
+    const trace = {
+
+        x: xValues,
+        y: yValues,
+        z: zValues,
+
+        mode: "markers",
+
+        type: "scatter3d",
+
+        marker: {
+
+            size: measureValues.map(value =>
+                Math.max(5, Math.min(30, value / 1000))
+            ),
+
+            color: measureValues,
+
+            colorscale: color,
+
+            showscale: true,
+
+            colorbar: {
+                title: measure
+            },
+
+            opacity: 0.85
+        },
+
+        text: data.map(row =>
+            `${x}: ${row[x]}<br>` +
+            `${y}: ${row[y]}<br>` +
+            `${z}: ${row[z]}<br>` +
+            `${measure}: ${row[measure]}`
+        ),
+
+        hovertemplate:
+            "%{text}<extra></extra>"
+    };
+
+
+    const layout = {
+
+        title: "Interactive OLAP Cube",
+
+        scene: {
+
+            xaxis: {
+                title: x
+            },
+
+            yaxis: {
+                title: y
+            },
+
+            zaxis: {
+                title: z
+            }
+        },
+
+        margin: {
+            l: 0,
+            r: 0,
+            b: 0,
+            t: 50
+        }
+    };
+
+
+    Plotly.newPlot(
+        "cube",
+        [trace],
+        layout,
+        {
+            responsive: true,
+            displaylogo: false
+        }
+    );
+}
+
+
+/* Generate cube when page opens */
+
+generateCube();
+
+</script>
+
+</body>
+</html>

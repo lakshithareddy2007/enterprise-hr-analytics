@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Upload Dataset</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <h2>HR Analytics</h2>
+
+    <a href="/dashboard">🏠 Dashboard</a>
+
+    <a href="/upload">📂 Upload Dataset</a>
+
+    <a href="/analytics">📊 Analytics</a>
+
+    <a href="/candidate">👨‍💼 Candidate Approval</a>
+
+    <a href="/logout">🚪 Logout</a>
+
+</div>
+
+
+<div class="main">
+
+<h1>Upload HR Employee Dataset</h1>
+
+<p>
+
+Upload your HR Analytics CSV file to perform analysis and candidate selection.
+
+</p>
+
+<br>
+
+<form action="/upload_file"
+      method="POST"
+      enctype="multipart/form-data">
+
+    <input
+        type="file"
+        name="file"
+        accept=".csv"
+        required>
+
+    <br><br>
+
+    <button type="submit">
+
+        Upload Dataset
+
+    </button>
+
+</form>
+
+<br><br>
+
+<div class="card">
+
+<h2>Supported Dataset</h2>
+
+<ul>
+
+<li>IBM HR Analytics Dataset</li>
+
+<li>CSV File Format</li>
+
+<li>Employee Records</li>
+
+<li>Dynamic Analytics</li>
+
+<li>Candidate Approval</li>
+
+</ul>
+
+</div>
+
+<br>
+
+<a href="/dashboard">
+
+<button>
+
+← Back to Dashboard
+
+</button>
+
+</a>
+
+</div>
+
+</body>
+
+</html>

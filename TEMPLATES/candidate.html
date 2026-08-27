@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Candidate Approval</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<h2>HR Analytics</h2>
+
+<a href="/dashboard">🏠 Dashboard</a>
+
+<a href="/upload">📂 Upload Dataset</a>
+
+<a href="/analytics">📊 Analytics</a>
+
+<a href="/candidate">👨‍💼 Candidate Approval</a>
+
+<a href="/logout">🚪 Logout</a>
+
+</div>
+
+<div class="main">
+
+<h1>Candidate Approval System</h1>
+
+<p>Select the recruitment criteria below and click <b>Approve Candidates</b>.</p>
+
+<form action="/filter_candidates" method="POST">
+
+<label><b>Minimum Age</b></label>
+
+<input type="number"
+name="age"
+value="25"
+required>
+
+<br><br>
+
+<label><b>Minimum Experience (Years)</b></label>
+
+<input type="number"
+name="experience"
+value="2"
+required>
+
+<br><br>
+
+<label><b>Minimum Monthly Income</b></label>
+
+<input type="number"
+name="salary"
+value="3000"
+required>
+
+<br><br>
+
+<label><b>Department</b></label>
+
+<select name="department">
+
+<option value="">All Departments</option>
+
+<option value="Sales">Sales</option>
+
+<option value="Research & Development">Research & Development</option>
+
+<option value="Human Resources">Human Resources</option>
+
+</select>
+
+<br><br>
+
+<label><b>Minimum Performance Rating</b></label>
+
+<select name="rating">
+
+<option value="">Any</option>
+
+<option value="1">1</option>
+
+<option value="2">2</option>
+
+<option value="3">3</option>
+
+<option value="4">4</option>
+
+</select>
+
+<br><br>
+
+<label><b>Attrition</b></label>
+
+<select name="attrition">
+
+<option value="">Any</option>
+
+<option value="No">No</option>
+
+<option value="Yes">Yes</option>
+
+</select>
+
+<br><br>
+
+<label><b>Over Time</b></label>
+
+<select name="overtime">
+
+<option value="">Any</option>
+
+<option value="No">No</option>
+
+<option value="Yes">Yes</option>
+
+</select>
+
+<br><br>
+
+<button type="submit">
+
+Approve Candidates
+
+</button>
+
+</form>
+
+<br><br>
+
+{% if total %}
+
+<div class="card">
+
+<h2>Total Approved Candidates : {{ total }}</h2>
+
+</div>
+
+{% endif %}
+
+<br>
+
+{% if approved_table %}
+
+<div class="card">
+
+<h2>Approved Candidates</h2>
+
+{{ approved_table|safe }}
+
+</div>
+
+<br>
+
+<form action="/download_candidates" method="POST">
+
+<input type="hidden" name="age" value="{{ request.form.get('age','25') }}">
+
+<input type="hidden" name="experience" value="{{ request.form.get('experience','2') }}">
+
+<input type="hidden" name="salary" value="{{ request.form.get('salary','3000') }}">
+
+<input type="hidden" name="department" value="{{ request.form.get('department','') }}">
+
+<input type="hidden" name="rating" value="{{ request.form.get('rating','') }}">
+
+<input type="hidden" name="attrition" value="{{ request.form.get('attrition','') }}">
+
+<input type="hidden" name="overtime" value="{{ request.form.get('overtime','') }}">
+
+<button type="submit">
+
+⬇ Download Approved Candidates CSV
+
+</button>
+
+</form>
+
+{% endif %}
+
+</div>
+
+</body>
+
+</html>

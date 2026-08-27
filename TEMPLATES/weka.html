@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>WEKA Classification Analysis</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #18233d;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .header p {
+            margin: 10px auto 0;
+            max-width: 850px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+        }
+
+        h2 {
+            color: #1d3557;
+        }
+
+        select {
+            padding: 12px;
+            width: 280px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #1d3557;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .accuracy {
+            font-size: 32px;
+            font-weight: bold;
+            color: #198754;
+            margin: 15px 0;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #842029;
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #1d3557;
+            color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .info-box {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .info {
+            background: #eef3f8;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .back-button {
+            margin-bottom: 30px;
+        }
+
+        @media screen and (max-width: 700px) {
+
+            select {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            button {
+                margin-left: 0;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+
+        <h1>🔬 WEKA Classification Analysis</h1>
+
+        <p>
+            This module performs supervised machine learning classification on the uploaded dataset.
+            Select a target column and the system automatically processes the available data and evaluates a Decision Tree model.
+        </p>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="card">
+
+            <h2>Select Target Column</h2>
+
+            <form method="POST">
+
+                <select name="target_column" required>
+
+                    <option value="">
+                        Select Target Column
+                    </option>
+
+                    {% for column in columns %}
+
+                    <option value="{{ column }}">
+                        {{ column }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <button type="submit">
+                    Run Classification
+                </button>
+
+            </form>
+
+        </div>
+
+
+        {% if error %}
+
+        <div class="card error">
+
+            {{ error }}
+
+        </div>
+
+        {% endif %}
+
+
+        {% if result %}
+
+        <div class="card">
+
+            <h2>Classification Results</h2>
+
+            <p>
+                <strong>Target Column:</strong>
+                {{ result.target }}
+            </p>
+
+            <div class="accuracy">
+
+                Accuracy: {{ result.accuracy }}%
+
+            </div>
+
+            <div class="info-box">
+
+                <div class="info">
+                    Total Records: {{ result.total_records }}
+                </div>
+
+                <div class="info">
+                    Training Records: {{ result.training_records }}
+                </div>
+
+                <div class="info">
+                    Testing Records: {{ result.testing_records }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Classification Performance</h2>
+
+            <table>
+
+                <tr>
+
+                    <th>Class</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
+                    <th>Support</th>
+
+                </tr>
+
+
+                {% for class_name in result.classes %}
+
+                <tr>
+
+                    <td>{{ class_name }}</td>
+
+                    <td>
+                        {{ "%.3f"|format(result.report[class_name]["precision"]) }}
+                    </td>
+
+                    <td>
+                        {{ "%.3f"|format(result.report[class_name]["recall"]) }}
+                    </td>
+
+                    <td>
+                        {{ "%.3f"|format(result.report[class_name]["f1-score"]) }}
+                    </td>
+
+                    <td>
+                        {{ result.report[class_name]["support"] }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Confusion Matrix</h2>
+
+            <table>
+
+                <tr>
+
+                    <th>Actual / Predicted</th>
+
+                    {% for class_name in result.classes %}
+
+                    <th>{{ class_name }}</th>
+
+                    {% endfor %}
+
+                </tr>
+
+
+                {% for row in result.matrix %}
+
+                <tr>
+
+                    <th>
+                        {{ result.classes[loop.index0] }}
+                    </th>
+
+                    {% for value in row %}
+
+                    <td>{{ value }}</td>
+
+                    {% endfor %}
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+        {% endif %}
+
+
+        <a href="/dashboard">
+
+            <button class="back-button">
+
+                ← Back to Dashboard
+
+            </button>
+
+        </a>
+
+    </div>
+
+</body>
+</html>

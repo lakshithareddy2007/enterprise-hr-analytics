@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic HR Report Analysis</title>
+
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #18233d;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .header p {
+            margin-top: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .filter-box {
+            background: white;
+            margin: 20px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+        }
+
+        .filter-box h2 {
+            margin-top: 0;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        select {
+            padding: 11px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            min-width: 170px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 6px;
+            background: #1d3557;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .download-all {
+            background: #198754;
+        }
+
+        .record-count {
+            margin-top: 18px;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+            min-height: 480px;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 8px 0 10px 0;
+        }
+
+        .chart-area {
+            width: 100%;
+            min-height: 420px;
+        }
+
+        .chart-buttons {
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .chart-buttons button {
+            background: #0f6b4b;
+        }
+
+        .back-button {
+            margin: 0 20px 25px 20px;
+            background: #1d3557;
+        }
+
+        @media screen and (max-width: 900px) {
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+
+        <h1>Dynamic HR Report Analysis</h1>
+
+        <p>
+            This module automatically analyzes the uploaded dataset and generates interactive reports based on available employee information.
+            Filters dynamically update the charts, allowing users to analyze specific departments, genders, and attrition categories.
+        </p>
+
+    </div>
+
+
+    <div class="filter-box">
+
+        <h2>Dynamic Report Filters</h2>
+
+        <form method="GET" action="/reports">
+
+            <div class="filter-row">
+
+                <label>Department:</label>
+
+                <select name="department">
+
+                    <option value="All">All Departments</option>
+
+                    {% for department in departments %}
+
+                    <option value="{{ department }}"
+                        {% if selected_department == department %}selected{% endif %}>
+                        {{ department }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <label>Gender:</label>
+
+                <select name="gender">
+
+                    <option value="All">All Genders</option>
+
+                    {% for gender in genders %}
+
+                    <option value="{{ gender }}"
+                        {% if selected_gender == gender %}selected{% endif %}>
+                        {{ gender }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <label>Attrition:</label>
+
+                <select name="attrition">
+
+                    <option value="All">All</option>
+
+                    {% for attrition in attritions %}
+
+                    <option value="{{ attrition }}"
+                        {% if selected_attrition == attrition %}selected{% endif %}>
+                        {{ attrition }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <button type="submit">
+                    Generate Report
+                </button>
+
+                <button
+                    type="button"
+                    class="download-all"
+                    onclick="downloadAllGraphs()">
+
+                    Download All Graphs
+
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <div class="record-count">
+
+            Filtered Records: {{ record_count }}
+
+        </div>
+
+    </div>
+
+
+    <div class="charts-container">
+
+        {% for chart in charts %}
+
+        <div class="chart-card">
+
+            <div class="chart-title">
+                {{ chart.title }}
+            </div>
+
+            <div class="chart-area">
+                {{ chart.graph | safe }}
+            </div>
+
+            <div class="chart-buttons">
+
+                <button
+                    type="button"
+                    onclick="downloadGraph('{{ chart.id }}', '{{ chart.title }}')">
+
+                    Download Graph
+
+                </button>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <a href="/dashboard">
+        <button class="back-button">
+            ← Back to Dashboard
+        </button>
+    </a>
+
+
+    <script>
+
+        function downloadGraph(chartId, chartTitle) {
+
+            var graph = document.getElementById(chartId);
+
+            Plotly.downloadImage(
+                graph,
+                {
+                    format: "png",
+                    filename: chartTitle.replaceAll(" ", "_"),
+                    width: 1400,
+                    height: 900,
+                    scale: 2
+                }
+            );
+
+        }
+
+
+        function downloadAllGraphs() {
+
+            var charts = document.querySelectorAll(".js-plotly-plot");
+
+            charts.forEach(function(chart, index) {
+
+                setTimeout(function() {
+
+                    Plotly.downloadImage(
+                        chart,
+                        {
+                            format: "png",
+                            filename: "HR_Report_Graph_" + (index + 1),
+                            width: 1400,
+                            height: 900,
+                            scale: 2
+                        }
+                    );
+
+                }, index * 800);
+
+            });
+
+        }
+
+    </script>
+
+</body>
+</html>
